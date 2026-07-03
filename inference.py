@@ -52,7 +52,7 @@ def main():
         "--max-new-tokens",
         type=int,
         default=100,
-        help="Number of new tokens to generate",
+        help="Maximum number of new tokens",
     )
 
     parser.add_argument(
@@ -60,6 +60,39 @@ def main():
         type=float,
         default=1.0,
         help="Sampling temperature",
+    )
+
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=None,
+        help="Top-k sampling",
+    )
+
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Top-p (nucleus) sampling",
+    )
+
+    parser.add_argument(
+        "--repetition-penalty",
+        type=float,
+        default=1.0,
+        help="Repetition penalty",
+    )
+
+    parser.add_argument(
+        "--disable-kv-cache",
+        action="store_true",
+        help="Disable KV cache during generation",
+    )
+
+    parser.add_argument(
+        "--stream",
+        action="store_true",
+        help="Stream generated text",
     )
 
     parser.add_argument(
@@ -75,27 +108,60 @@ def main():
         args.checkpoint
     )
 
-    tokens = tokenizer.encode(args.prompt)
+    prompt_tokens = tokenizer.encode(
+        args.prompt
+    )
 
-    x = torch.tensor(
-        [tokens],
+    idx = torch.tensor(
+        [prompt_tokens],
         dtype=torch.long,
         device=device,
     )
 
-    generated = model.generate(
-        idx=x,
-        max_new_tokens=args.max_new_tokens,
-        temperature=args.temperature,
-    )
+    print("\n" + "*" * 80)
+    # print(args.prompt, end="", flush=True)
 
-    output = tokenizer.decode(
-        generated[0].tolist()
-    )
+    if args.stream:
 
-    print("\n" + "=" * 80)
-    print(output)
-    print("=" * 80)
+        for next_token in model.generate_stream(
+            idx=idx,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            repetition_penalty=args.repetition_penalty,
+            use_kv_cache=not args.disable_kv_cache,
+        ):
+            token = next_token.item()
+
+            # Decode only the newly generated token.
+            print(
+                tokenizer.decode([token]),
+                end="",
+                flush=True,
+            )
+
+        print()
+
+    else:
+
+        generated = model.generate(
+            idx=idx,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            repetition_penalty=args.repetition_penalty,
+            use_kv_cache=not args.disable_kv_cache,
+        )
+
+        print(
+            tokenizer.decode(
+                generated[0].tolist()
+            )
+        )
+
+    print("*" * 80)
 
 
 if __name__ == "__main__":

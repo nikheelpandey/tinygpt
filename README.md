@@ -156,9 +156,9 @@ If this helped you understand transformers, consider starring the repo so others
 2. ✅ KV cache
 3. ✅ Top-k
 4. ✅ Top-p
-5. Repetition penalty
+5. ✅Repetition penalty
 6. EOS handling
-7. Streaming generation
+7. ✅Streaming generation
 
 **Training improvements**  
 8. Better optimizer (warmup, cosine decay, gradient clipping)  
