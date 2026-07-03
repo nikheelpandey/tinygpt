@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+from model.kv_cache import LayerCache
 from model.multi_head import MultiHeadAttention
 from model.feed_forward import FeedForward
 
@@ -27,7 +28,20 @@ class TransformerBlock(nn.Module):
         self.ln1 = nn.LayerNorm(embedding_dim)
         self.ln2 = nn.LayerNorm(embedding_dim)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        x: torch.Tensor,
+        layer_cache: LayerCache | None = None,
+    ) -> torch.Tensor:
+        if layer_cache is not None:
+            attn_out, new_layer_cache = self.attention(
+                self.ln1(x),
+                layer_cache,
+            )
+            x = x + attn_out
+            x = x + self.feed_forward(self.ln2(x))
+            return x, new_layer_cache
+
         x = x + self.attention(self.ln1(x))
         x = x + self.feed_forward(self.ln2(x))
         return x

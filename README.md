@@ -14,6 +14,8 @@ TinyGPT is a minimal, readable implementation of a decoder-only transformer. It 
 - **Checkpointing** — saves best and final model weights under `checkpoints/`
 - **Inference CLI** with temperature sampling and optional top-k filtering
 
+
+
 ## Quick start
 
 ```bash
@@ -39,17 +41,23 @@ Use the best checkpoint if you prefer:
 python inference.py "To be or not" --checkpoint checkpoints/tiny_gpt_best.pt
 ```
 
+
+
 ## Requirements
 
 - Python 3.10+
 - PyTorch 2.0+
 - ~2 GB RAM for training (CPU/MPS/CUDA all supported)
 
-| Device | Notes |
-|--------|-------|
-| **CUDA** | Fastest; uses automatic mixed precision |
-| **Apple MPS** | Supported during training |
-| **CPU** | Works; slower but fine for experimentation |
+
+| Device        | Notes                                      |
+| ------------- | ------------------------------------------ |
+| **CUDA**      | Fastest; uses automatic mixed precision    |
+| **Apple MPS** | Supported during training                  |
+| **CPU**       | Works; slower but fine for experimentation |
+
+
+
 
 ## Project structure
 
@@ -75,21 +83,25 @@ tinygpt/
 └── checkpoints/          # Saved models (created during training, gitignored)
 ```
 
+
+
 ## Training your own corpus
 
 Replace `data/corpus.txt` with any UTF-8 text file, then run `python train.py`. Hyperparameters live at the top of `train.py`:
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `VOCAB_SIZE` | 5000 | BPE vocabulary size |
-| `CONTEXT_SIZE` | 128 | Max sequence length |
-| `EMBEDDING_DIM` | 128 | Model width |
-| `NUM_HEADS` | 8 | Attention heads |
-| `NUM_LAYERS` | 4 | Transformer blocks |
-| `BATCH_SIZE` | 64 | Training batch size |
-| `EPOCHS` | 5 | Max training epochs |
-| `LR` | 3e-4 | AdamW learning rate |
-| `PATIENCE` | 2 | Early stopping patience |
+
+| Parameter       | Default | Description             |
+| --------------- | ------- | ----------------------- |
+| `VOCAB_SIZE`    | 5000    | BPE vocabulary size     |
+| `CONTEXT_SIZE`  | 128     | Max sequence length     |
+| `EMBEDDING_DIM` | 128     | Model width             |
+| `NUM_HEADS`     | 8       | Attention heads         |
+| `NUM_LAYERS`    | 4       | Transformer blocks      |
+| `BATCH_SIZE`    | 64      | Training batch size     |
+| `EPOCHS`        | 5       | Max training epochs     |
+| `LR`            | 3e-4    | AdamW learning rate     |
+| `PATIENCE`      | 2       | Early stopping patience |
+
 
 Checkpoints include the model weights, architecture config, and BPE merges — everything needed for inference.
 
@@ -100,6 +112,8 @@ Checkpoints include the model weights, architecture config, and BPE merges — e
 3. **Model** — A stack of causal transformer blocks predicts the next token at each position.
 4. **Train** — Cross-entropy loss, AdamW optimizer, validation perplexity, and greedy samples each epoch.
 5. **Generate** — At inference time, the model autoregressively samples tokens with temperature scaling.
+
+
 
 ## Default model size
 
@@ -114,6 +128,8 @@ python inference.py PROMPT [options]
   --temperature T      Sampling temperature (default: 1.0; lower = more deterministic)
   --checkpoint PATH    Checkpoint file (default: checkpoints/tiny_gpt.pt)
 ```
+
+
 
 ## License
 
@@ -131,3 +147,31 @@ Issues and pull requests welcome. Ideas that fit the project's scope:
 ---
 
 If this helped you understand transformers, consider starring the repo so others can find it.
+
+## ToDo
+
+**Inference fundamentals**
+
+1. ✅ Temperature
+2. ✅ KV cache
+3. ✅ Top-k
+4. ✅ Top-p
+5. Repetition penalty
+6. EOS handling
+7. Streaming generation
+
+**Training improvements**  
+8. Better optimizer (warmup, cosine decay, gradient clipping)  
+9. Checkpointing  
+10. Mixed precision
+
+**Modern Transformer architecture**  
+11. RoPE  
+12. RMSNorm (if not already using it)  
+13. SwiGLU (if not already using it)  
+14. GQA
+
+**Advanced inference**  
+15. Flash Attention  
+16. Speculative decoding  
+17. Continuous batching / paged KV cache

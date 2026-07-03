@@ -21,9 +21,15 @@ class GPTEmbedding(nn.Module):
             embedding_dim,
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        x: torch.Tensor,
+        pos_offset: int = 0,
+    ) -> torch.Tensor:
         """
         x: (batch_size, context_size)
+
+        pos_offset: absolute position of the first token in x (for KV-cache inference)
 
         returns:
             (batch_size, context_size, embedding_dim)
@@ -32,7 +38,8 @@ class GPTEmbedding(nn.Module):
         batch_size, seq_len = x.shape
 
         positions = torch.arange(
-            seq_len,
+            pos_offset,
+            pos_offset + seq_len,
             device=x.device,
         )
 
